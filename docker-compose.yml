@@ -1,0 +1,29 @@
+services:
+  
+  db:
+    image: postgres:17.5-bookworm
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: datamart_be
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d/
+
+  etl:
+    image: python:3.11.12-bookworm
+    container_name: python_etl
+    volumes:
+      - ./etl:/app
+    working_dir: /app
+    command: >
+      pip install -r requirements.txt && python main.py
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
